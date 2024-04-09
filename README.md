@@ -55,8 +55,6 @@ pnpm dev
 
 Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=vercel-examples) ([Documentation](https://nextjs.org/docs/deployment)).
 
-# Executive Summary
-
 ## Objective
 Our computer vision model will be able to identify a species of dog breeds and point out certain characteristics. Our team will create custom data by training models based on datasets. We have two sets of data, CSV file related to dog breeds giving descriptions and chracteristics, and the other set of data is photos of dog breeds to help the computer vision model identify the specified breed.  
 
