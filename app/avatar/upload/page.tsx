@@ -3,10 +3,11 @@
 import type { PutBlobResult } from '@vercel/blob';
 import { useState, useRef } from 'react';
 
-export default function AvatarUploadPage() {
+export default function DogVisionPage() {
     const inputFileRef = useRef<HTMLInputElement>(null);
     const [blob, setBlob] = useState<PutBlobResult | null>(null);
-    const [apiResponse, setApiResponse] = useState<any>(null);
+    const [blobUrl, setBlobUrl] = useState<string | null>(null);
+    const [topBreeds, setTopBreeds] = useState<any[]>([]);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -17,56 +18,88 @@ export default function AvatarUploadPage() {
 
         const file = inputFileRef.current.files[0];
 
-        // Fetch data from the API endpoint
-        const myHeaders = new Headers();
-        myHeaders.append('Content-Type', 'application/octet-stream');
-        myHeaders.append('Ocp-Apim-Subscription-Key', '6b8fdee82eac4149b4086911eab8300e');
-
-        const requestOptions: RequestInit = {
-            method: 'POST',
-            headers: myHeaders,
-            body: file,
-            redirect: 'follow',
-        };
-
+        // Fetch data from the image analysis API
         const apiResponse = await fetch(
             'https://finddogbreed.cognitiveservices.azure.com/computervision/imageanalysis:analyze?api-version=2023-02-01-preview&language=en&gender-neutral-caption=False&model-name=firstdogmodel',
-            requestOptions
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/octet-stream',
+                    'Ocp-Apim-Subscription-Key': '6b8fdee82eac4149b4086911eab8300e',
+                },
+                body: file,
+            }
         );
-        const data = await apiResponse.text();
-        setApiResponse(JSON.parse(data));
+        const imageAnalysisData = await apiResponse.json();
+
+        // Determine the top 5 dog breeds
+        const topBreeds = imageAnalysisData.customModelResult.tagsResult.values.slice(0, 5);
+        setTopBreeds(topBreeds);
 
         // Upload the data to Blob storage
-        const response = await fetch(`/api/avatar/upload?filename=${file.name}`, {
+        const blobResponse = await fetch(`/api/avatar/upload?filename=${file.name}`, {
             method: 'POST',
             body: file,
         });
-
-        const newBlob = (await response.json()) as PutBlobResult;
+        const newBlob = (await blobResponse.json()) as PutBlobResult;
         setBlob(newBlob);
+
+        // Create a URL for the Blob
+        const blobUrl = URL.createObjectURL(file);
+        setBlobUrl(blobUrl);
     };
 
     return (
-        <>
-            <h1>Upload Your Avatar</h1>
+        <div
+            className="bg-gradient-to-br from-black to-[#1e3a8a] min-h-screen flex flex-col items-center justify-center"
+        >
+            <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+                <h1 className="text-3xl font-bold mb-4 text-center text-blue-500">Dog Vision</h1>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label htmlFor="file" className="block font-medium text-gray-700 mb-1">
+                            Upload Your Image
+                        </label>
+                        <input
+                            id="file"
+                            name="file"
+                            ref={inputFileRef}
+                            type="file"
+                            required
+                            className="w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md"
+                    >
+                        Analyze
+                    </button>
+                </form>
 
-            <form onSubmit={handleSubmit}>
-                <input name="file" ref={inputFileRef} type="file" required />
-                <button type="submit">Upload</button>
-            </form>
+                {blobUrl && (
+                    <div className="mt-4">
+                        <img src={blobUrl} alt="Uploaded" className="max-w-full h-auto rounded-md" />
+                    </div>
+                )}
 
-            {blob && (
-                <div>
-                    Blob url: <a href={blob.url}>{blob.url}</a>
-                </div>
-            )}
-
-            {apiResponse && (
-                <div>
-                    <h2>API Response</h2>
-                    <pre>{JSON.stringify(apiResponse, null, 2)}</pre>
-                </div>
-            )}
-        </>
+                {topBreeds.length > 0 && (
+                    <div className="mt-4">
+                        <h2 className="text-xl font-bold mb-2 text-blue-500">Top 5 Dog Breeds</h2>
+                        <ul className="space-y-2">
+                            {topBreeds.map((breed, index) => (
+                                <li
+                                    key={index}
+                                    className="bg-gray-200 rounded-md p-2 flex justify-between items-center"
+                                >
+                                    <span className="font-medium text-gray-700">{breed.name}</span>
+                                    <span className="text-gray-500">Confidence: {(breed.confidence * 100).toFixed(2)}%</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
+        </div>
     );
 }
