@@ -8,9 +8,11 @@ export default function DogVisionPage() {
     const [blob, setBlob] = useState<PutBlobResult | null>(null);
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
     const [topBreeds, setTopBreeds] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setIsLoading(true);
 
         if (!inputFileRef.current?.files) {
             throw new Error('No file selected');
@@ -47,12 +49,12 @@ export default function DogVisionPage() {
         // Create a URL for the Blob
         const blobUrl = URL.createObjectURL(file);
         setBlobUrl(blobUrl);
+
+        setIsLoading(false);
     };
 
     return (
-        <div
-            className="bg-gradient-to-br from-black to-[#1e3a8a] min-h-screen flex flex-col items-center justify-center"
-        >
+        <div className="bg-gradient-to-br from-black to-[#1e3a8a] min-h-screen flex flex-col items-center justify-center">
             <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
                 <h1 className="text-3xl font-bold mb-4 text-center text-blue-500">Dog Vision</h1>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -72,32 +74,41 @@ export default function DogVisionPage() {
                     <button
                         type="submit"
                         className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md"
+                        disabled={isLoading}
                     >
-                        Analyze
+                        {isLoading ? 'Loading...' : 'Analyze'}
                     </button>
                 </form>
 
-                {blobUrl && (
-                    <div className="mt-4">
-                        <img src={blobUrl} alt="Uploaded" className="max-w-full h-auto rounded-md" />
+                {isLoading ? (
+                    <div className="mt-4 flex justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                     </div>
-                )}
+                ) : (
+                    <>
+                        {blobUrl && (
+                            <div className="mt-4">
+                                <img src={blobUrl} alt="Uploaded" className="max-w-full h-auto rounded-md" />
+                            </div>
+                        )}
 
-                {topBreeds.length > 0 && (
-                    <div className="mt-4">
-                        <h2 className="text-xl font-bold mb-2 text-blue-500">Top 5 Dog Breeds</h2>
-                        <ul className="space-y-2">
-                            {topBreeds.map((breed, index) => (
-                                <li
-                                    key={index}
-                                    className="bg-gray-200 rounded-md p-2 flex justify-between items-center"
-                                >
-                                    <span className="font-medium text-gray-700">{breed.name}</span>
-                                    <span className="text-gray-500">Confidence: {(breed.confidence * 100).toFixed(2)}%</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                        {topBreeds.length > 0 && (
+                            <div className="mt-4">
+                                <h2 className="text-xl font-bold mb-2 text-blue-500">Top 5 Dog Breeds</h2>
+                                <ul className="space-y-2">
+                                    {topBreeds.map((breed, index) => (
+                                        <li
+                                            key={index}
+                                            className="bg-gray-200 rounded-md p-2 flex justify-between items-center"
+                                        >
+                                            <span className="font-medium text-gray-700">{breed.name}</span>
+                                            <span className="text-gray-500">Confidence: {(breed.confidence * 100).toFixed(2)}%</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>
