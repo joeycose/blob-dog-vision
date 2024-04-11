@@ -183,7 +183,7 @@ export default function DogVisionPage() {
                                                     <span>{characteristic.slice(1).trim()}</span>
                                                 </div>
                                             ) : (
-                                                <div className="font-medium">{characteristic}.</div>
+                                                <div className="font-medium">{characteristic}</div>
                                             )}
                                         </div>
                                     ))}
