@@ -14,17 +14,6 @@ relatedTemplates:
 ---
 
 
-
-## How to Use
-
-You can choose from one of the following two methods to use this repository:
-
-### One-Click Deploy
-
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=vercel-examples):
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fexamples%2Ftree%2Fmain%2Fstorage%2Fblob-starter&project-name=blob-starter&repository-name=blob-starter&demo-title=Vercel%20Blob%20Next.js%20Starter&demo-description=Simple%20Next.js%20template%20that%20uses%20Vercel%20Blob%20for%20image%20uploads&demo-url=https%3A%2F%2Fblob-starter.vercel.app%2F&demo-image=https%3A%2F%2Fblob-starter.vercel.app%2Fopengraph-image.png&stores=%5B%7B"type"%3A"blob"%7D%5D)
-
 ### Clone and Deploy
 
 Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [pnpm](https://pnpm.io/installation) to bootstrap the example:
