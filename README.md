@@ -14,9 +14,6 @@ relatedTemplates:
 ---
 
 
-## Demo
-
-https://blob-starter.vercel.app/
 
 ## How to Use
 
